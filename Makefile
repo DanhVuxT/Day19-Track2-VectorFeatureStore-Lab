@@ -2,12 +2,25 @@
 ## Two paths: lightweight (default, no Docker) and full Docker.
 
 VENV     := .venv
+export PYTHONUTF8 := 1
+export JUPYTER_CONFIG_DIR := $(CURDIR)/.jupyter
+export JUPYTER_DATA_DIR := $(CURDIR)/.jupyter/data
+export JUPYTER_RUNTIME_DIR := $(CURDIR)/.jupyter/runtime
+ifeq ($(OS),Windows_NT)
+PY       := $(VENV)/Scripts/python.exe
+PIP      := $(VENV)/Scripts/pip.exe
+JUPYTER  := $(VENV)/Scripts/jupyter.exe
+JUPYTEXT := $(VENV)/Scripts/jupytext.exe
+UVICORN  := $(VENV)/Scripts/uvicorn.exe
+PYTEST   := $(VENV)/Scripts/pytest.exe
+else
 PY       := $(VENV)/bin/python
 PIP      := $(VENV)/bin/pip
 JUPYTER  := $(VENV)/bin/jupyter
 JUPYTEXT := $(VENV)/bin/jupytext
 UVICORN  := $(VENV)/bin/uvicorn
 PYTEST   := $(VENV)/bin/pytest
+endif
 
 .DEFAULT_GOAL := help
 

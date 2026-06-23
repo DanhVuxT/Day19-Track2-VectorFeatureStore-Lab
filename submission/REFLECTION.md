@@ -1,28 +1,9 @@
-# Reflection — Lab 19
+# Reflection - Lab 19
 
-**Tên:** _<Họ Tên>_
-**Cohort:** _<A20-K1 / A20-K2 / ...>_
-**Path đã chạy:** _<lite | docker | both>_
+Path da chay: Lite (fastembed + Qdrant in-memory + SQLite Feast + FastAPI).
 
----
+Bonus: da them `bonus/ARCHITECTURE.md`, `bonus/agent.py`, va `bonus/demo.py`; demo chay bang `python bonus/demo.py`.
 
-## Câu hỏi (≤ 200 chữ)
+Lab nay giup minh thay Vector Store khong chi la noi luu embedding, ma con la mot retrieval index can quan tam den model embedding, payload, top-k, latency va cach danh gia bang golden set. Hybrid search tot hon keyword hoac vector rieng le vi no ket hop duoc exact-match signal cua BM25 voi semantic signal cua vector; tren lab, hybrid thang trung binh va dac biet tot o mixed queries, noi query vua co tu khoa ky thuat vua co y dien giai.
 
-> Trên golden set 50 queries, mode nào thắng ở loại query nào (`exact` /
-> `paraphrase` / `mixed`), và tại sao? Khi nào bạn **không** dùng hybrid
-> (i.e. khi nào pure BM25 hoặc pure vector là lựa chọn đúng)?
-
-_Answer here._
-
----
-
-## Điều ngạc nhiên nhất khi làm lab này
-
-_(Optional, 1–2 câu)_
-
----
-
-## Bonus challenge
-
-- [ ] Đã làm bonus (xem `bonus/`)
-- [ ] Pair work với: _<tên đồng đội nếu có>_
+Feature Store giup tranh loi training-serving skew, data leakage trong point-in-time join, va viec moi service tu tinh feature theo cach khac nhau. Kho khan chinh la moi truong Windows khong co bash/make, PATH khong thay uvicorn/feast trong notebook, va latency NB3 bi anh huong boi cold cache. Cach xu ly la dung venv Python 3.12, goi CLI bang duong dan venv, bat UTF-8/Jupyter dirs trong repo, them warmup va cache query embedding.

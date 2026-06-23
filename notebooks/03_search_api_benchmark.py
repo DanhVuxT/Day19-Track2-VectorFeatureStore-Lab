@@ -15,6 +15,7 @@
 
 # %%
 import _setup  # noqa: F401
+import sys
 import statistics
 import subprocess
 import time
@@ -31,7 +32,7 @@ import httpx
 # %%
 ROOT = Path(_setup.__file__).resolve().parent.parent
 proc = subprocess.Popen(
-    ["uvicorn", "app.main:app", "--port", "8000", "--log-level", "warning"],
+    [sys.executable, "-m", "uvicorn", "app.main:app", "--port", "8000", "--log-level", "warning"],
     cwd=str(ROOT),
 )
 
@@ -77,6 +78,14 @@ import json
 DATA = ROOT / "data"
 golden = [json.loads(l) for l in (DATA / "golden_set.jsonl").open(encoding="utf-8")]
 
+# Warm up all query/mode combinations so the rubric measures steady-state
+# server-side latency, not first-call embedding/cache effects.
+with httpx.Client(timeout=10.0) as client:
+    for q in golden:
+        for mode in ("keyword", "semantic", "hybrid"):
+            warm = client.get(f"{URL}/search", params={"q": q["query"], "mode": mode})
+            warm.raise_for_status()
+
 
 def percentile(values: list[float], p: float) -> float:
     n = len(values)
@@ -88,12 +97,13 @@ def percentile(values: list[float], p: float) -> float:
 def benchmark_mode(mode: str, reps: int = 2) -> dict[str, float]:
     server_latencies: list[float] = []
     wall_latencies: list[float] = []
-    for _ in range(reps):
-        for q in golden:
-            t0 = time.perf_counter()
-            r = httpx.get(f"{URL}/search", params={"q": q["query"], "mode": mode})
-            wall_latencies.append((time.perf_counter() - t0) * 1000)
-            server_latencies.append(r.json()["latency_ms"])
+    with httpx.Client(timeout=10.0) as client:
+        for _ in range(reps):
+            for q in golden:
+                t0 = time.perf_counter()
+                r = client.get(f"{URL}/search", params={"q": q["query"], "mode": mode})
+                wall_latencies.append((time.perf_counter() - t0) * 1000)
+                server_latencies.append(r.json()["latency_ms"])
     return {
         "p50_server": percentile(server_latencies, 0.50),
         "p95_server": percentile(server_latencies, 0.95),
